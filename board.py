@@ -3,7 +3,7 @@ class Board:
     BLACK = 1
     WHITE = -1
 
-    directions = {'Up':(1, 0), 'Up_Right':(1, 1), 'Right':(0, 1), 'Down_Right':(-1, 1), 'Down':(-1, 0), 'Down_Left':(-1, -1), 'Left':(0, -1), 'Up_Left':(1, -1)}
+    directions = {'Up':(-1, 0), 'Up_Right':(-1, 1), 'Right':(0, 1), 'Down_Right':(1, 1), 'Down':(1, 0), 'Down_Left':(1, -1), 'Left':(0, -1), 'Up_Left':(-1, -1)}
 
     def __init__(self):
         self.board = [[self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY],
@@ -20,24 +20,64 @@ class Board:
     def legalMoves(self):
         moves = []
         self.legal_move = 0
-        for col in range(0, 8):
-            for row in range(0, 8):
-                if self.board[col][row] == self.EMPTY and (col, row) not in moves:
-                    for (c, r) in self.directions.values():
+        for row in range(0, 8):
+            for col in range(0, 8):
+                if self.board[row][col] == self.EMPTY and (row, col) not in moves:
+                    for (r, c) in self.directions.values():
                         new_col = col + c
                         new_row = row + r
                         if new_col in range(0, 8) and new_row in range(0, 8):
-                            #print(2)
-                            if self.board[new_col][new_row] == -self.turn:
-                                #print(3)
+                            if self.board[new_row][new_col] == -self.turn:
                                 while True:
-                                    #print(4)
                                     new_col += c
                                     new_row += r
                                     if new_col not in range(0, 8) or new_row not in range(0, 8):
                                         break
-                                    if self.board[new_col][new_row] == self.turn:
+                                    if self.board[new_row][new_col] == self.turn:
                                         self.legal_move += 1
-                                        moves.append((col, row))
+                                        moves.append((row, col))
                                         break
-        return moves              
+        return moves
+    
+    def applyMove(self, move):
+        row, col = move
+        flipdirections = []
+        self.board[row][col]  = self.turn
+        for d, (r, c) in self.directions.items():
+            new_col = col + c
+            new_row = row + r
+            if new_col in range(0, 8) and new_row in range(0, 8):
+                if self.board[new_row][new_col] == -self.turn:
+                    while True:
+                        new_col += c
+                        new_row += r
+                        if new_col not in range(0, 8) or new_row not in range(0, 8):
+                            break
+                        if self.board[new_row][new_col] == self.turn:
+                            flipdirections.append(d)
+                            break
+        for d in flipdirections:
+            r, c = self.directions[d]
+            print(d,r,c)
+            new_col = col + c
+            new_row = row + r
+            while self.board[new_row][new_col] == -self.turn:
+                self.board[new_row][new_col] = self.turn
+                new_col += c
+                new_row += r
+        self.legal_move = None
+
+    def printBoard(self):
+        rowIndex = '87654321'
+        colIndex = 'a  b  c  d  e  f  g  h'
+        for row in range(0, 8):
+            print()
+            print(rowIndex[row], end='  ')
+            for col in range(0, 8):
+                if self.board[row][col] == self.EMPTY:
+                    print('.', end='  ')
+                elif self.board[row][col] == self.BLACK:
+                    print('o', end='  ')
+                else:
+                    print('x', end='  ')
+        print(f"\n   {colIndex}")
