@@ -16,6 +16,7 @@ class Board:
                       [self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY, self.EMPTY],]
         self.turn = self.BLACK
         self.legal_move = None
+        self.pass_count = 0
 
     def legalMoves(self):
         moves = []
@@ -58,14 +59,37 @@ class Board:
                             break
         for d in flipdirections:
             r, c = self.directions[d]
-            print(d,r,c)
             new_col = col + c
             new_row = row + r
             while self.board[new_row][new_col] == -self.turn:
                 self.board[new_row][new_col] = self.turn
                 new_col += c
                 new_row += r
+        self.pass_count = 0
         self.legal_move = None
+        self.turn = -self.turn
+
+    def pass_turn(self):
+        self.turn = -self.turn
+        self.pass_count += 1
+
+    def is_terminal(self):
+        if self.pass_count == 2:
+            black_count = 0
+            white_count = 0
+            for rows in self.board:
+                for square in rows:
+                    if square == self.BLACK:
+                        black_count += 1
+                    elif square == self.WHITE:
+                        white_count += 1
+            if black_count > white_count:
+                return self.BLACK
+            elif black_count < white_count:
+                return self.WHITE
+            else:
+                return self.EMPTY
+                    
 
     def printBoard(self):
         rowIndex = '87654321'
