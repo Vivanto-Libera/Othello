@@ -14,11 +14,11 @@ x = BatchNormalization()(x)
 
 policy_flat = Flatten()(x)
 policy_dense = Dense(128, activation='relu')(policy_flat)
-policy_output = Dense(65, activation='softmax')(policy_dense)
+policy_output = Dense(65, activation='softmax', name='policyHead')(policy_dense)
 
 value_flat = Flatten()(x)
 value_dense = Dense(64, activation='relu')(value_flat)
-value_output = Dense(1, activation='tanh')(value_dense)
+value_output = Dense(1, activation='tanh', name='valueHead')(value_dense)
 
 model = Model(inputs, [policy_output, value_output])
 bce = keras.losses.CategoricalCrossentropy(from_logits=False)

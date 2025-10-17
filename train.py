@@ -29,7 +29,6 @@ class ReinfLearn():
                 move_idx = g.getNetworkOutputIndex(move)
                 outputVec[move_idx] = prob
             g.legalMoves()
-            g.printBoard()
             if(g.legal_move == 0):
                 outputVec = np.zeros_like(outputVec)
                 outputVec[64] = 1.0
@@ -41,7 +40,6 @@ class ReinfLearn():
             nextMove = None
             for move, _, _, _ in moveProbs:
                 move_idx = g.getNetworkOutputIndex(move)
-                print(move_idx, ' and ', idx)
                 if(move_idx == idx):
                     nextMove = move
             if(g.turn == Board.WHITE):
@@ -61,9 +59,8 @@ class ReinfLearn():
     
 
 model = keras.models.load_model("init_model.keras")
-mctsSearcher = mcts.MCTS(model)
 learner = ReinfLearn(model)
-for i in (range(0,101)):
+for i in (range(0,100)):
     print("Training Iteration: "+str(i))
     allPos = []
     allMovProbs = []
@@ -77,5 +74,4 @@ for i in (range(0,101)):
     npProbs = np.array(allMovProbs)
     npVals = np.array(allValues)
     model.fit(npPos,[npProbs, npVals], epochs=256, batch_size=16)
-    if(i%10 == 0):
-        model.save('model_it'+str(i)+'.keras')
+    model.save('model_it'+str(i)+'.keras')
