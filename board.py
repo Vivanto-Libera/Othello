@@ -74,7 +74,10 @@ class Board:
         self.pass_count += 1
 
     def is_terminal(self):
+        winner = None
+        is_end = False
         if self.pass_count == 2:
+            is_end = True
             black_count = 0
             white_count = 0
             for rows in self.board:
@@ -84,11 +87,12 @@ class Board:
                     elif square == self.WHITE:
                         white_count += 1
             if black_count > white_count:
-                return self.BLACK
+                winner = self.BLACK
             elif black_count < white_count:
-                return self.WHITE
+                winner = self.WHITE
             else:
-                return self.EMPTY
+                winner = self.EMPTY
+        return (is_end, winner)
                     
 
     def printBoard(self):
