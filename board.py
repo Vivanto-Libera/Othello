@@ -1,3 +1,5 @@
+import numpy as np
+
 class Board:
     EMPTY = 0
     BLACK = 1
@@ -69,11 +71,11 @@ class Board:
         self.legal_move = None
         self.turn = -self.turn
 
-    def pass_turn(self):
+    def passTurn(self):
         self.turn = -self.turn
         self.pass_count += 1
 
-    def is_terminal(self):
+    def isTerminal(self):
         winner = None
         is_end = False
         if self.pass_count == 2:
@@ -94,6 +96,20 @@ class Board:
                 winner = self.EMPTY
         return (is_end, winner)
                     
+    def netWorkInput(self):
+        playerPlane = np.zeros([8, 8])
+        opponentPlane = np.zeros([8, 8])
+        for row in range(0, 8):
+            for col in range(0, 8):
+                if self.board[row][col] == self.turn:
+                    playerPlane[row][col] = 1
+                elif self.board[row][col] == -self.turn:
+                    opponentPlane[row][col] = 1
+        moves = self.legalMoves()
+        movePlane = np.zeros([8, 8])
+        for (r, c) in moves:
+            movePlane[r][c] = 1
+        return (playerPlane, opponentPlane, movePlane)
 
     def printBoard(self):
         rowIndex = '87654321'
