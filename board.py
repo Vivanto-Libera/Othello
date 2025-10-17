@@ -20,29 +20,24 @@ class Board:
     def legalMoves(self):
         moves = []
         self.legal_move = 0
-        for col in range(0, 7):
-            for row in range(0, 7):
-                if self.board[col][row] == self.EMPTY:
-                    for (c, r) in self.directions.values:
+        for col in range(0, 8):
+            for row in range(0, 8):
+                if self.board[col][row] == self.EMPTY and (col, row) not in moves:
+                    for (c, r) in self.directions.values():
                         new_col = col + c
                         new_row = row + r
-                        if new_col in range(0, 7) and new_row in range(0, 7):
+                        if new_col in range(0, 8) and new_row in range(0, 8):
+                            #print(2)
                             if self.board[new_col][new_row] == -self.turn:
+                                #print(3)
                                 while True:
-                                    new_col += 1
-                                    new_row += 1
-                                    if new_col not in range(0, 7) or new_row not in range(0, 7):
+                                    #print(4)
+                                    new_col += c
+                                    new_row += r
+                                    if new_col not in range(0, 8) or new_row not in range(0, 8):
                                         break
                                     if self.board[new_col][new_row] == self.turn:
                                         self.legal_move += 1
-                                        moves.append((new_col, new_row))
+                                        moves.append((col, row))
                                         break
-        return moves
-
-
-
-
-
-
-
-              
+        return moves              
