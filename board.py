@@ -40,40 +40,41 @@ class Board:
                                         self.legal_move += 1
                                         moves.append((row, col))
                                         break
+        if self.legal_move == 0:
+            moves.append((-1, -1))
         return moves
     
     def applyMove(self, move):
-        row, col = move
-        flipdirections = []
-        self.board[row][col]  = self.turn
-        for d, (r, c) in self.directions.items():
-            new_col = col + c
-            new_row = row + r
-            if new_col in range(0, 8) and new_row in range(0, 8):
-                if self.board[new_row][new_col] == -self.turn:
-                    while True:
-                        new_col += c
-                        new_row += r
-                        if new_col not in range(0, 8) or new_row not in range(0, 8):
-                            break
-                        if self.board[new_row][new_col] == self.turn:
-                            flipdirections.append(d)
-                            break
-        for d in flipdirections:
-            r, c = self.directions[d]
-            new_col = col + c
-            new_row = row + r
-            while self.board[new_row][new_col] == -self.turn:
-                self.board[new_row][new_col] = self.turn
-                new_col += c
-                new_row += r
-        self.pass_count = 0
+        if self.legal_move == 0:
+            self.pass_count += 1
+        else:
+            row, col = move
+            flipdirections = []
+            self.board[row][col]  = self.turn
+            for d, (r, c) in self.directions.items():
+                new_col = col + c
+                new_row = row + r
+                if new_col in range(0, 8) and new_row in range(0, 8):
+                    if self.board[new_row][new_col] == -self.turn:
+                        while True:
+                            new_col += c
+                            new_row += r
+                            if new_col not in range(0, 8) or new_row not in range(0, 8):
+                                break
+                            if self.board[new_row][new_col] == self.turn:
+                                flipdirections.append(d)
+                                break
+            for d in flipdirections:
+                r, c = self.directions[d]
+                new_col = col + c
+                new_row = row + r
+                while self.board[new_row][new_col] == -self.turn:
+                    self.board[new_row][new_col] = self.turn
+                    new_col += c
+                    new_row += r
+            self.pass_count = 0
         self.legal_move = None
         self.turn = -self.turn
-
-    def passTurn(self):
-        self.turn = -self.turn
-        self.pass_count += 1
 
     def isTerminal(self):
         winner = None
@@ -96,7 +97,7 @@ class Board:
                 winner = self.EMPTY
         return (is_end, winner)
                     
-    def netWorkInput(self):
+    def networkInput(self):
         playerPlane = np.zeros([8, 8])
         opponentPlane = np.zeros([8, 8])
         for row in range(0, 8):
@@ -109,7 +110,16 @@ class Board:
         movePlane = np.zeros([8, 8])
         for (r, c) in moves:
             movePlane[r][c] = 1
-        return (playerPlane, opponentPlane, movePlane)
+        return np.stack([playerPlane, opponentPlane, movePlane], axis=2)
+
+    def getNetworkOutputIndex(self, move):
+        index = 0
+        if(move != (-1, -1)):
+            r, c = move
+            index = r * 8 + c
+        else:
+            index = 64
+        return index
 
     def printBoard(self):
         rowIndex = '87654321'
