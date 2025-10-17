@@ -18,35 +18,30 @@ class ReinfLearn():
         valuesData = []
         g = Board()
         while((not fst(g.isTerminal()))):
-            # encode the current position to the
-            # network input format
             positionsData.append(g.networkInput())
-            # setup the MCT search
             rootEdge = mcts.Edge(None, None)
             rootEdge.N = 1
             rootNode = mcts.Node(g, rootEdge)
             mctsSearcher = mcts.MCTS(self.model)
             moveProbs = mctsSearcher.search(rootNode)
-            # MCT search return move probabilities for
-            # all legal moves. To get an output vector
-            # we need to consider all (incl. illegal) moves
-            # but mask illegal moves to a probability of zero
             outputVec = [ 0.0 for x in range(0, 65)]
             for (move, prob, _, _) in moveProbs:
                 move_idx = g.getNetworkOutputIndex(move)
                 outputVec[move_idx] = prob
-            # in order to explore enough positions
-            # we interpret the result of the MCT search
-            # as a multinomial distribution and randomly
-            # select (w.r.t. the probabilites) a move
+            g.legalMoves()
+            g.printBoard()
+            if(g.legal_move == 0):
+                outputVec = np.zeros_like(outputVec)
+                outputVec[64] = 1.0
+            else:
+                outputVec[64] = 0.0
+                outputVec = outputVec / np.sum(outputVec)
             rand_idx = np.random.multinomial(1, outputVec)
             idx = np.where(rand_idx==1)[0][0]
             nextMove = None
-            # now we iterate through all legal moves
-            # in order to find the one corresponding
-            # to the randomly selected index
             for move, _, _, _ in moveProbs:
                 move_idx = g.getNetworkOutputIndex(move)
+                print(move_idx, ' and ', idx)
                 if(move_idx == idx):
                     nextMove = move
             if(g.turn == Board.WHITE):
@@ -56,7 +51,6 @@ class ReinfLearn():
             moveProbsData.append(outputVec)
             g.applyMove(nextMove)
         else:
-            # we have reached a final state
             _, winner = g.isTerminal()
             for i in range(0, len(moveProbsData)):
                 if(winner == Board.BLACK):
@@ -69,13 +63,11 @@ class ReinfLearn():
 model = keras.models.load_model("init_model.keras")
 mctsSearcher = mcts.MCTS(model)
 learner = ReinfLearn(model)
-# we train the network in 11 iterations
 for i in (range(0,101)):
     print("Training Iteration: "+str(i))
     allPos = []
     allMovProbs = []
     allValues = []
-    # in each iteration we play ten games
     for j in tqdm(range(0,10)):
         pos, movProbs, values = learner.playGame()
         allPos += pos
@@ -84,10 +76,6 @@ for i in (range(0,101)):
     npPos = np.array(allPos)
     npProbs = np.array(allMovProbs)
     npVals = np.array(allValues)
-    # we now have collected positions from ten training games
-    # (considering a typical game length of 4 to 6 half moves,
-    # that's approx. 40 up to 60 positions) and use those
-    # to train the network
     model.fit(npPos,[npProbs, npVals], epochs=256, batch_size=16)
     if(i%10 == 0):
         model.save('model_it'+str(i)+'.keras')

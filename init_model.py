@@ -14,10 +14,10 @@ x = BatchNormalization()(x)
 
 policy_flat = Flatten()(x)
 policy_dense = Dense(128, activation='relu')(policy_flat)
-policy_output = Dense(64, activation='softmax')(policy_dense)
+policy_output = Dense(65, activation='softmax')(policy_dense)
 
 value_flat = Flatten()(x)
-value_dense = Dense(65, activation='relu')(value_flat)
+value_dense = Dense(64, activation='relu')(value_flat)
 value_output = Dense(1, activation='tanh')(value_dense)
 
 model = Model(inputs, [policy_output, value_output])

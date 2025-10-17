@@ -45,7 +45,7 @@ class Board:
         return moves
     
     def applyMove(self, move):
-        if self.legal_move == 0:
+        if move == (-1, -1):
             self.pass_count += 1
         else:
             row, col = move
