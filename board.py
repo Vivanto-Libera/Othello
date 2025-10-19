@@ -34,7 +34,7 @@ class Board:
                                 while True:
                                     new_col += c
                                     new_row += r
-                                    if new_col not in range(0, 8) or new_row not in range(0, 8):
+                                    if new_col not in range(0, 8) or new_row not in range(0, 8) or self.board[new_row][new_col] == self.EMPTY:
                                         break
                                     if self.board[new_row][new_col] == self.turn:
                                         self.legal_move += 1

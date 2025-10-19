@@ -28,8 +28,7 @@ class ReinfLearn():
             for (move, prob, _, _) in moveProbs:
                 move_idx = g.getNetworkOutputIndex(move)
                 outputVec[move_idx] = prob
-            g.legalMoves()
-            if(g.legal_move == 0):
+            if outputVec[64] > 0.5:
                 outputVec = np.zeros_like(outputVec)
                 outputVec[64] = 1.0
             else:
@@ -53,12 +52,14 @@ class ReinfLearn():
             for i in range(0, len(moveProbsData)):
                 if(winner == Board.BLACK):
                     valuesData[i] = valuesData[i] * -1.0
-                if(winner == Board.WHITE):
+                elif(winner == Board.WHITE):
                     valuesData[i] = valuesData[i] * 1.0
+                else:
+                    valuesData[i] = 0.0
         return (positionsData, moveProbsData, valuesData)
     
 
-model = keras.models.load_model("init_model.keras")
+model = keras.models.load_model("new_model.keras")
 learner = ReinfLearn(model)
 for i in (range(0,100)):
     print("Training Iteration: "+str(i))
@@ -73,5 +74,5 @@ for i in (range(0,100)):
     npPos = np.array(allPos)
     npProbs = np.array(allMovProbs)
     npVals = np.array(allValues)
-    model.fit(npPos,[npProbs, npVals], epochs=256, batch_size=16)
+    model.fit(npPos,[npProbs, npVals], epochs=128, batch_size=16)
     model.save('model_it'+str(i)+'.keras')

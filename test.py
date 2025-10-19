@@ -82,8 +82,9 @@ def old_vs_new(board):
 
 newWins = 0
 oldWins = 0
-a = int(input("Input old number:"))
-oldModel = keras.models.load_model('model_it'+str(a)+'.keras')
+#a = int(input("Input old number:"))
+#oldModel = keras.models.load_model('model_it'+str(a)+'.keras')
+oldModel = keras.models.load_model('old_model.keras')
 all = 0
 for i in range(0,50):
     board = Board()
